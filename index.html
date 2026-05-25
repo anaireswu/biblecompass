@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bible Reading Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --parchment: #f5ede0;
+    --parchment-dark: #e8d9c0;
+    --gold: #b8860b;
+    --gold-light: #d4a847;
+    --gold-pale: #f0e0a0;
+    --rust: #8b3a2a;
+    --sage: #5a6e4a;
+    --muted: #7a6a55;
+    --border: rgba(184,134,11,0.25);
+    --shadow: rgba(26,20,16,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(184,134,11,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(139,58,42,0.05) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+  }
+
+  .subtitle-line {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .header-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-num {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--gold);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 800px) {
+    .main { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+
+  .panel-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .testament-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 0.5rem 0;
+    margin: 0.75rem 0 0.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .testament-header:first-of-type { margin-top: 0; }
+
+  .testament-check {
+    width: 14px; height: 14px;
+    border: 1px solid var(--gold);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .testament-check.checked { background: var(--gold); }
+  .testament-check.checked::after { content: '✓'; color: white; font-size: 9px; font-family: sans-serif; }
+  .testament-check.partial { background: var(--gold-pale); }
+  .testament-check.partial::after { content: '–'; color: var(--gold); font-size: 11px; font-family: sans-serif; }
+
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .book-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    font-size: 0.85rem;
+  }
+
+  .book-item:hover { background: rgba(184,134,11,0.06); border-color: var(--border); }
+  .book-item.selected { background: rgba(184,134,11,0.1); border-color: rgba(184,134,11,0.3); }
+
+  .book-check {
+    width: 13px; height: 13px;
+    border: 1px solid var(--gold-light);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .book-item.selected .book-check { background: var(--gold); border-color: var(--gold); }
+  .book-item.selected .book-check::after { content: '✓'; color: white; font-size: 8px; font-family: sans-serif; }
+
+  .book-name { flex: 1; font-size: 0.82rem; }
+  .book-verses { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  .settings-panel {
+    position: sticky;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .field-group { margin-bottom: 1rem; }
+  .field-group:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  input[type="number"], select {
+    width: 100%;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid var(--border);
+    border-radius: 1px;
+    padding: 0.5rem 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type="number"]:focus, select:focus { border-color: var(--gold); }
+
+  .speed-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--ink);
+    color: var(--parchment);
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 1px;
+  }
+
+  .btn:hover { background: var(--gold); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-outline:hover { background: rgba(184,134,11,0.08); color: var(--gold); }
+
+  .result-box {
+    background: var(--ink);
+    color: var(--parchment);
+    padding: 1.25rem;
+    border-radius: 1px;
+    display: none;
+  }
+
+  .result-box.visible { display: block; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .result-stat { text-align: center; padding: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
+  .result-stat .num { font-size: 1.5rem; font-weight: 600; color: var(--gold-light); display: block; }
+  .result-stat .lbl { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; color: rgba(245,237,224,0.5); text-transform: uppercase; }
+
+  .plan-section { margin-top: 1.5rem; }
+
+  .plan-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+
+  .plan-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .plan-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .plan-table td {
+    padding: 0.5rem 0.5rem;
+    border-bottom: 1px solid rgba(184,134,11,0.1);
+    vertical-align: top;
+  }
+
+  .plan-table tr:hover td { background: rgba(184,134,11,0.04); }
+
+  .day-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .verse-count { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); text-align: right; }
+
+  .search-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.6);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    border-radius: 1px;
+    outline: none;
+    color: var(--ink);
+  }
+
+  .search-bar input:focus { border-color: var(--gold); }
+
+  .quick-btns {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .quick-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .quick-btn:hover { background: rgba(184,134,11,0.08); color: var(--gold); border-color: var(--gold-light); }
+
+  .selected-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .selected-count span { color: var(--gold); font-weight: 500; }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1rem 0;
+  }
+
+  .plan-wrapper {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-pale) transparent;
+  }
+
+  .plan-wrapper::-webkit-scrollbar { width: 4px; }
+  .plan-wrapper::-webkit-scrollbar-thumb { background: var(--gold-pale); border-radius: 2px; }
+
+  .reading-speed-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 1px;
+    background: rgba(184,134,11,0.12);
+    color: var(--gold);
+    margin-right: 0.2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="subtitle-line">Version · CEV · Contemporary English Version</div>
+  <h1>Bible <em>Reading Plan</em></h1>
+  <div class="header-stats">
+    <div class="stat"><span class="stat-num">66</span><span class="stat-label">Books</span></div>
+    <div class="stat"><span class="stat-num">1,189</span><span class="stat-label">Chapters</span></div>
+    <div class="stat"><span class="stat-num">31,102</span><span class="stat-label">Verses</span></div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- LEFT: Book Selection -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">
+        <span>Select Books</span>
+        <span class="selected-count"><span id="sel-count">66</span> selected · <span id="sel-verses">31,102</span> verses</span>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" id="book-search" placeholder="Search book..." oninput="filterBooks()">
+      </div>
+
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="selectAll()">All</button>
+        <button class="quick-btn" onclick="selectNone()">None</button>
+        <button class="quick-btn" onclick="selectTestament('OT')">Old Testament</button>
+        <button class="quick-btn" onclick="selectTestament('NT')">New Testament</button>
+        <button class="quick-btn" onclick="selectGroup('Pentateuch')">Pentateuch</button>
+        <button class="quick-btn" onclick="selectGroup('Gospels')">Gospels</button>
+        <button class="quick-btn" onclick="selectGroup('Epistles')">Epistles</button>
+        <button class="quick-btn" onclick="selectGroup('Poetic')">Poetic</button>
+      </div>
+
+      <div id="books-container"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Settings & Results -->
+  <div class="settings-panel">
+    <div class="panel">
+      <div class="panel-title">Settings</div>
+
+      <div class="field-group">
+        <label>Verses per day</label>
+        <input type="number" id="verses-per-day" value="25" min="1" max="500" oninput="recalculate()">
+        <div class="reading-speed-note">~25 verses ≈ 10–15 min of reading</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field-group">
+        <label>Or: calculate by availability</label>
+        <div class="speed-group">
+          <div>
+            <label>Min/day available</label>
+            <input type="number" id="minutes-per-day" value="" min="1" max="1440" placeholder="e.g. 20" oninput="calcFromTime()">
+          </div>
+          <div>
+            <label>Speed (v/min)</label>
+            <input type="number" id="reading-speed" value="2.5" min="0.5" max="10" step="0.5" oninput="calcFromTime()">
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field-group">
+        <label>Reading days per week</label>
+        <select id="days-per-week" onchange="recalculate()">
+          <option value="7">7 days (every day)</option>
+          <option value="6">6 days a week</option>
+          <option value="5">5 days a week</option>
+          <option value="4">4 days a week</option>
+          <option value="3">3 days a week</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="generatePlan()">Generate Plan</button>
+    </div>
+
+    <!-- Result Summary -->
+    <div class="result-box" id="result-box">
+      <div class="result-grid">
+        <div class="result-stat">
+          <span class="num" id="r-days">—</span>
+          <span class="lbl">Reading days</span>
+        </div>
+        <div class="result-stat">
+          <span class="num" id="r-weeks">—</span>
+          <span class="lbl">Weeks</span>
+        </div>
+        <div class="result-stat">
+          <span class="num" id="r-verses">—</span>
+          <span class="lbl">Verses/day</span>
+        </div>
+        <div class="result-stat">
+          <span class="num" id="r-time">—</span>
+          <span class="lbl">Est. min/day</span>
+        </div>
+      </div>
+      <div id="r-summary" style="font-size:0.85rem; opacity:0.75; font-style:italic; text-align:center;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Daily Plan Table -->
+<div style="max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem;">
+  <div id="plan-section" class="plan-section" style="display:none;">
+    <div class="panel">
+      <div class="plan-section-title">Detailed Daily Plan</div>
+      <div class="plan-wrapper">
+        <table class="plan-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Reading</th>
+              <th style="text-align:right">Verses</th>
+            </tr>
+          </thead>
+          <tbody id="plan-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BOOKS = [
+  // Pentateuch
+  { name: "Genesis",         abbr:"Gen",  verses:1533, testament:"OT", group:"Pentateuch" },
+  { name: "Exodus",          abbr:"Exo",  verses:1213, testament:"OT", group:"Pentateuch" },
+  { name: "Leviticus",       abbr:"Lev",  verses:859,  testament:"OT", group:"Pentateuch" },
+  { name: "Numbers",         abbr:"Num",  verses:1288, testament:"OT", group:"Pentateuch" },
+  { name: "Deuteronomy",     abbr:"Deu",  verses:959,  testament:"OT", group:"Pentateuch" },
+  // Historical
+  { name: "Joshua",          abbr:"Jos",  verses:658,  testament:"OT", group:"Historical" },
+  { name: "Judges",          abbr:"Jdg",  verses:618,  testament:"OT", group:"Historical" },
+  { name: "Ruth",            abbr:"Rut",  verses:85,   testament:"OT", group:"Historical" },
+  { name: "1 Samuel",        abbr:"1Sa",  verses:810,  testament:"OT", group:"Historical" },
+  { name: "2 Samuel",        abbr:"2Sa",  verses:695,  testament:"OT", group:"Historical" },
+  { name: "1 Kings",         abbr:"1Ki",  verses:816,  testament:"OT", group:"Historical" },
+  { name: "2 Kings",         abbr:"2Ki",  verses:719,  testament:"OT", group:"Historical" },
+  { name: "1 Chronicles",    abbr:"1Ch",  verses:942,  testament:"OT", group:"Historical" },
+  { name: "2 Chronicles",    abbr:"2Ch",  verses:822,  testament:"OT", group:"Historical" },
+  { name: "Ezra",            abbr:"Ezr",  verses:280,  testament:"OT", group:"Historical" },
+  { name: "Nehemiah",        abbr:"Neh",  verses:406,  testament:"OT", group:"Historical" },
+  { name: "Esther",          abbr:"Est",  verses:167,  testament:"OT", group:"Historical" },
+  // Poetic
+  { name: "Job",             abbr:"Job",  verses:1070, testament:"OT", group:"Poetic" },
+  { name: "Psalms",          abbr:"Psa",  verses:2461, testament:"OT", group:"Poetic" },
+  { name: "Proverbs",        abbr:"Pro",  verses:915,  testament:"OT", group:"Poetic" },
+  { name: "Ecclesiastes",    abbr:"Ecc",  verses:222,  testament:"OT", group:"Poetic" },
+  { name: "Song of Solomon", abbr:"Sng",  verses:117,  testament:"OT", group:"Poetic" },
+  // Prophetic
+  { name: "Isaiah",          abbr:"Isa",  verses:1292, testament:"OT", group:"Prophetic" },
+  { name: "Jeremiah",        abbr:"Jer",  verses:1364, testament:"OT", group:"Prophetic" },
+  { name: "Lamentations",    abbr:"Lam",  verses:154,  testament:"OT", group:"Prophetic" },
+  { name: "Ezekiel",         abbr:"Eze",  verses:1273, testament:"OT", group:"Prophetic" },
+  { name: "Daniel",          abbr:"Dan",  verses:357,  testament:"OT", group:"Prophetic" },
+  { name: "Hosea",           abbr:"Hos",  verses:197,  testament:"OT", group:"Prophetic" },
+  { name: "Joel",            abbr:"Joe",  verses:73,   testament:"OT", group:"Prophetic" },
+  { name: "Amos",            abbr:"Amo",  verses:146,  testament:"OT", group:"Prophetic" },
+  { name: "Obadiah",         abbr:"Oba",  verses:21,   testament:"OT", group:"Prophetic" },
+  { name: "Jonah",           abbr:"Jon",  verses:48,   testament:"OT", group:"Prophetic" },
+  { name: "Micah",           abbr:"Mic",  verses:105,  testament:"OT", group:"Prophetic" },
+  { name: "Nahum",           abbr:"Nah",  verses:47,   testament:"OT", group:"Prophetic" },
+  { name: "Habakkuk",        abbr:"Hab",  verses:56,   testament:"OT", group:"Prophetic" },
+  { name: "Zephaniah",       abbr:"Zep",  verses:53,   testament:"OT", group:"Prophetic" },
+  { name: "Haggai",          abbr:"Hag",  verses:38,   testament:"OT", group:"Prophetic" },
+  { name: "Zechariah",       abbr:"Zec",  verses:211,  testament:"OT", group:"Prophetic" },
+  { name: "Malachi",         abbr:"Mal",  verses:55,   testament:"OT", group:"Prophetic" },
+  // Gospels
+  { name: "Matthew",         abbr:"Mat",  verses:1071, testament:"NT", group:"Gospels" },
+  { name: "Mark",            abbr:"Mar",  verses:678,  testament:"NT", group:"Gospels" },
+  { name: "Luke",            abbr:"Luk",  verses:1151, testament:"NT", group:"Gospels" },
+  { name: "John",            abbr:"Joh",  verses:879,  testament:"NT", group:"Gospels" },
+  // Historical NT
+  { name: "Acts",            abbr:"Act",  verses:1007, testament:"NT", group:"Historical" },
+  // Epistles
+  { name: "Romans",          abbr:"Rom",  verses:433,  testament:"NT", group:"Epistles" },
+  { name: "1 Corinthians",   abbr:"1Co",  verses:437,  testament:"NT", group:"Epistles" },
+  { name: "2 Corinthians",   abbr:"2Co",  verses:257,  testament:"NT", group:"Epistles" },
+  { name: "Galatians",       abbr:"Gal",  verses:149,  testament:"NT", group:"Epistles" },
+  { name: "Ephesians",       abbr:"Eph",  verses:155,  testament:"NT", group:"Epistles" },
+  { name: "Philippians",     abbr:"Phi",  verses:104,  testament:"NT", group:"Epistles" },
+  { name: "Colossians",      abbr:"Col",  verses:95,   testament:"NT", group:"Epistles" },
+  { name: "1 Thessalonians", abbr:"1Th",  verses:89,   testament:"NT", group:"Epistles" },
+  { name: "2 Thessalonians", abbr:"2Th",  verses:47,   testament:"NT", group:"Epistles" },
+  { name: "1 Timothy",       abbr:"1Ti",  verses:113,  testament:"NT", group:"Epistles" },
+  { name: "2 Timothy",       abbr:"2Ti",  verses:83,   testament:"NT", group:"Epistles" },
+  { name: "Titus",           abbr:"Tit",  verses:46,   testament:"NT", group:"Epistles" },
+  { name: "Philemon",        abbr:"Phm",  verses:25,   testament:"NT", group:"Epistles" },
+  { name: "Hebrews",         abbr:"Heb",  verses:303,  testament:"NT", group:"Epistles" },
+  { name: "James",           abbr:"Jam",  verses:108,  testament:"NT", group:"Epistles" },
+  { name: "1 Peter",         abbr:"1Pe",  verses:105,  testament:"NT", group:"Epistles" },
+  { name: "2 Peter",         abbr:"2Pe",  verses:61,   testament:"NT", group:"Epistles" },
+  { name: "1 John",          abbr:"1Jo",  verses:105,  testament:"NT", group:"Epistles" },
+  { name: "2 John",          abbr:"2Jo",  verses:13,   testament:"NT", group:"Epistles" },
+  { name: "3 John",          abbr:"3Jo",  verses:14,   testament:"NT", group:"Epistles" },
+  { name: "Jude",            abbr:"Jud",  verses:25,   testament:"NT", group:"Epistles" },
+  // Prophetic NT
+  { name: "Revelation",      abbr:"Rev",  verses:404,  testament:"NT", group:"Prophetic" },
+];
+
+let selected = new Array(BOOKS.length).fill(true);
+
+function fmt(n) { return n.toLocaleString('en-US'); }
+
+function renderBooks() {
+  const q = document.getElementById('book-search').value.toLowerCase();
+  const container = document.getElementById('books-container');
+  container.innerHTML = '';
+
+  const groups = {};
+  BOOKS.forEach((b, i) => {
+    if (q && !b.name.toLowerCase().includes(q) && !b.abbr.toLowerCase().includes(q)) return;
+    const key = b.testament + '|' + b.group;
+    if (!groups[key]) groups[key] = { testament: b.testament, group: b.group, items: [] };
+    groups[key].items.push({ book: b, idx: i });
+  });
+
+  const order = [
+    'OT|Pentateuch','OT|Historical','OT|Poetic','OT|Prophetic',
+    'NT|Gospels','NT|Historical','NT|Epistles','NT|Prophetic'
+  ];
+
+  order.forEach(key => {
+    if (!groups[key]) return;
+    const { testament, group, items } = groups[key];
+    const allSel = items.every(x => selected[x.idx]);
+    const noneSel = items.every(x => !selected[x.idx]);
+    const checkClass = allSel ? 'checked' : (noneSel ? '' : 'partial');
+
+    const header = document.createElement('div');
+    header.className = 'testament-header';
+    header.innerHTML = `<div class="testament-check ${checkClass}" onclick="toggleGroup('${key}')"></div>
+      <span style="font-size:0.75rem">${testament === 'OT' ? '✦ OT' : '✦ NT'} — ${group}</span>
+      <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted)">${items.reduce((s,x)=>s+x.book.verses,0).toLocaleString('en-US')} v</span>`;
+    container.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'books-grid';
+    items.forEach(({ book, idx }) => {
+      const div = document.createElement('div');
+      div.className = 'book-item' + (selected[idx] ? ' selected' : '');
+      div.dataset.idx = idx;
+      div.innerHTML = `<div class="book-check"></div><span class="book-name">${book.name}</span><span class="book-verses">${book.verses.toLocaleString('en-US')}</span>`;
+      div.onclick = () => toggleBook(idx);
+      grid.appendChild(div);
+    });
+    container.appendChild(grid);
+  });
+
+  updateCounts();
+}
+
+function toggleBook(idx) {
+  selected[idx] = !selected[idx];
+  renderBooks();
+  recalculate();
+}
+
+function toggleGroup(key) {
+  const [testament, group] = key.split('|');
+  const idxs = BOOKS.map((b,i) => b.testament===testament && b.group===group ? i : -1).filter(x=>x>=0);
+  const allSel = idxs.every(i => selected[i]);
+  idxs.forEach(i => selected[i] = !allSel);
+  renderBooks();
+  recalculate();
+}
+
+function selectAll() { selected.fill(true); renderBooks(); recalculate(); }
+function selectNone() { selected.fill(false); renderBooks(); recalculate(); }
+function selectTestament(t) {
+  BOOKS.forEach((b,i) => { selected[i] = b.testament === t; });
+  renderBooks(); recalculate();
+}
+function selectGroup(g) {
+  selected.fill(false);
+  BOOKS.forEach((b,i) => { if (b.group===g) selected[i]=true; });
+  renderBooks(); recalculate();
+}
+function filterBooks() { renderBooks(); }
+
+function updateCounts() {
+  const count = selected.filter(Boolean).length;
+  const verses = BOOKS.reduce((s,b,i) => selected[i] ? s+b.verses : s, 0);
+  document.getElementById('sel-count').textContent = count;
+  document.getElementById('sel-verses').textContent = fmt(verses);
+}
+
+function calcFromTime() {
+  const mins = parseFloat(document.getElementById('minutes-per-day').value);
+  const speed = parseFloat(document.getElementById('reading-speed').value) || 2.5;
+  if (mins && mins > 0) {
+    document.getElementById('verses-per-day').value = Math.round(mins * speed);
+  }
+  recalculate();
+}
+
+function recalculate() { updateCounts(); }
+
+function generatePlan() {
+  const vpd = parseInt(document.getElementById('verses-per-day').value) || 25;
+  const daysPerWeek = parseInt(document.getElementById('days-per-week').value) || 7;
+  const speed = parseFloat(document.getElementById('reading-speed').value) || 2.5;
+
+  const selectedBooks = BOOKS.filter((b, i) => selected[i]);
+  if (selectedBooks.length === 0) {
+    alert('Please select at least one book!');
+    return;
+  }
+
+  const totalVerses = selectedBooks.reduce((s, b) => s + b.verses, 0);
+  const totalDays = Math.ceil(totalVerses / vpd);
+  const totalCalendarDays = Math.ceil(totalDays / daysPerWeek * 7);
+  const totalWeeks = Math.ceil(totalCalendarDays / 7);
+  const minsPerDay = Math.round(vpd / speed);
+
+  document.getElementById('result-box').classList.add('visible');
+  document.getElementById('r-days').textContent = fmt(totalDays);
+  document.getElementById('r-weeks').textContent = fmt(totalWeeks);
+  document.getElementById('r-verses').textContent = fmt(vpd);
+  document.getElementById('r-time').textContent = '~' + minsPerDay;
+
+  const months = (totalCalendarDays / 30.44).toFixed(1);
+  document.getElementById('r-summary').textContent =
+    `${selectedBooks.length} books · ${fmt(totalVerses)} verses · ~${months} months`;
+
+  buildPlan(selectedBooks, vpd, daysPerWeek);
+}
+
+function buildPlan(books, vpd, daysPerWeek) {
+  const tbody = document.getElementById('plan-body');
+  tbody.innerHTML = '';
+
+  let allVerses = [];
+  books.forEach(b => {
+    for (let v = 1; v <= b.verses; v++) {
+      allVerses.push({ book: b.name, abbr: b.abbr, verse: v, total: b.verses });
+    }
+  });
+
+  const totalDays = Math.ceil(allVerses.length / vpd);
+  const fragment = document.createDocumentFragment();
+  const maxRows = Math.min(totalDays, 500);
+
+  for (let day = 0; day < maxRows; day++) {
+    const start = day * vpd;
+    const end = Math.min(start + vpd, allVerses.length);
+    const dayVerses = allVerses.slice(start, end);
+
+    const segments = [];
+    let cur = null;
+    dayVerses.forEach(v => {
+      if (!cur || cur.book !== v.book) {
+        cur = { book: v.book, abbr: v.abbr, from: v.verse, to: v.verse, total: v.total };
+        segments.push(cur);
+      } else {
+        cur.to = v.verse;
+      }
+    });
+
+    const readingStr = segments.map(s => {
+      if (s.from === 1 && s.to === s.total) return `<span class="tag">${s.abbr}</span> complete`;
+      if (s.from === s.to) return `<span class="tag">${s.abbr}</span> v.${s.from}`;
+      return `<span class="tag">${s.abbr}</span> v.${s.from}–${s.to}`;
+    }).join(' <span style="color:var(--muted);font-size:0.75rem">+</span> ');
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="day-num">Day ${day+1}</div></td>
+      <td>${readingStr}</td>
+      <td class="verse-count">${end - start}</td>
+    `;
+    fragment.appendChild(tr);
+  }
+
+  if (totalDays > 500) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="3" style="text-align:center;color:var(--muted);font-style:italic;font-size:0.8rem;padding:1rem">
+      + ${fmt(totalDays - 500)} additional days (omitted for performance)
+    </td>`;
+    fragment.appendChild(tr);
+  }
+
+  tbody.appendChild(fragment);
+  document.getElementById('plan-section').style.display = 'block';
+  document.getElementById('plan-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+renderBooks();
+</script>
+</body>
+</html>
