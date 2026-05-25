@@ -3,425 +3,1131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bible Reading Plan</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Bible Reading Plan · Pastel Compact</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
-    --ink: #1a1410;
-    --parchment: #f5ede0;
-    --parchment-dark: #e8d9c0;
-    --gold: #b8860b;
-    --gold-light: #d4a847;
-    --gold-pale: #f0e0a0;
-    --rust: #8b3a2a;
-    --sage: #5a6e4a;
-    --muted: #7a6a55;
-    --border: rgba(184,134,11,0.25);
-    --shadow: rgba(26,20,16,0.12);
+    --ink: #172033;
+    --ink-soft: #344054;
+    --muted: #667085;
+    --muted-soft: #98a2b3;
+    --page: #f7f8ff;
+    --surface: rgba(255, 255, 255, 0.82);
+    --surface-solid: #ffffff;
+    --surface-soft: rgba(255, 255, 255, 0.58);
+    --accent: #7c6df2;
+    --accent-strong: #6355dc;
+    --accent-soft: #eeecff;
+    --mint: #60d7cf;
+    --mint-soft: #e8fbf9;
+    --rose: #f7a8c8;
+    --rose-soft: #fff0f6;
+    --sky: #8ed7ff;
+    --sky-soft: #edf8ff;
+    --border: rgba(124, 109, 242, 0.16);
+    --border-strong: rgba(124, 109, 242, 0.34);
+    --shadow: 0 24px 70px rgba(30, 41, 59, 0.12);
+    --shadow-soft: 0 12px 34px rgba(30, 41, 59, 0.08);
+    --radius-xl: 30px;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html { scroll-behavior: smooth; }
+
   body {
-    background: var(--parchment);
-    color: var(--ink);
-    font-family: 'Cormorant Garamond', Georgia, serif;
     min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    background:
+      radial-gradient(circle at 12% 12%, rgba(142, 215, 255, 0.34), transparent 30vw),
+      radial-gradient(circle at 88% 16%, rgba(247, 168, 200, 0.30), transparent 28vw),
+      radial-gradient(circle at 72% 82%, rgba(96, 215, 207, 0.24), transparent 30vw),
+      linear-gradient(135deg, #fbfcff 0%, #f5f2ff 45%, #f7fbff 100%);
+  }
+
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::before {
+    inset: -18%;
+    background:
+      radial-gradient(circle at 20% 28%, rgba(124, 109, 242, 0.22), transparent 18%),
+      radial-gradient(circle at 82% 30%, rgba(247, 168, 200, 0.26), transparent 20%),
+      radial-gradient(circle at 50% 84%, rgba(96, 215, 207, 0.25), transparent 22%);
+    filter: blur(22px);
+    animation: pastelFloat 20s ease-in-out infinite alternate;
+  }
+
+  body::after {
+    inset: 0;
+    opacity: 0.44;
     background-image:
-      radial-gradient(ellipse at 20% 10%, rgba(184,134,11,0.07) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 90%, rgba(139,58,42,0.05) 0%, transparent 50%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      linear-gradient(rgba(124, 109, 242, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 109, 242, 0.045) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 78%);
+  }
+
+  body > * { position: relative; z-index: 1; }
+
+  @keyframes pastelFloat {
+    0% { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+    50% { transform: translate3d(1.3%, 1.5%, 0) scale(1.04); }
+    100% { transform: translate3d(2%, -1.2%, 0) scale(1.02); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    body::before { animation: none; }
+    *, *::before, *::after { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
   }
 
   header {
+    width: min(1180px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: clamp(2.2rem, 5vw, 4.2rem) 0 1.1rem;
     text-align: center;
-    padding: 3rem 2rem 2rem;
-    border-bottom: 1px solid var(--border);
-    position: relative;
-  }
-
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 2px;
-    background: var(--gold);
   }
 
   .subtitle-line {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.58rem 0.9rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(124, 109, 242, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.68);
+    color: var(--accent-strong);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(18px);
     font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
-    color: var(--gold);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    margin-bottom: 0.75rem;
   }
 
   h1 {
-    font-size: clamp(2.2rem, 5vw, 3.5rem);
-    font-weight: 300;
-    letter-spacing: 0.04em;
+    max-width: 760px;
+    margin: 0 auto;
     color: var(--ink);
-    line-height: 1.1;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(3rem, 7vw, 5.4rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
   }
 
   h1 em {
+    color: var(--accent);
     font-style: italic;
-    color: var(--gold);
+    font-weight: 400;
   }
 
   .header-stats {
-    display: flex;
-    justify-content: center;
-    gap: 2.5rem;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+    width: min(720px, 100%);
+    margin: clamp(1.3rem, 3vw, 1.9rem) auto 0;
   }
 
-  .stat { text-align: center; }
+  .stat {
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.62);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(18px);
+    text-align: center;
+  }
 
   .stat-num {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--gold);
     display: block;
+    color: var(--accent);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
     line-height: 1;
+    letter-spacing: -0.04em;
   }
 
   .stat-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
+    display: block;
+    margin-top: 0.25rem;
     color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+
+  .main,
+  .plan-shell {
+    width: min(1180px, calc(100% - 2rem));
+    margin: 1.1rem auto 0;
   }
 
   .main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
     display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 2rem;
-    align-items: start;
-  }
-
-  @media (max-width: 800px) {
-    .main { grid-template-columns: 1fr; }
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-bottom: 3rem;
   }
 
   .panel {
-    background: rgba(255,255,255,0.5);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 1.5rem;
-    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(20px);
+  }
+
+  .controls-panel {
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+  }
+
+  .books-panel {
+    padding: clamp(1rem, 2.5vw, 1.55rem);
   }
 
   .panel-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .testament-header {
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    text-transform: uppercase;
-    padding: 0.5rem 0;
-    margin: 0.75rem 0 0.5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .testament-header:first-of-type { margin-top: 0; }
-
-  .testament-check {
-    width: 14px; height: 14px;
-    border: 1px solid var(--gold);
-    display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .testament-check.checked { background: var(--gold); }
-  .testament-check.checked::after { content: '✓'; color: white; font-size: 9px; font-family: sans-serif; }
-  .testament-check.partial { background: var(--gold-pale); }
-  .testament-check.partial::after { content: '–'; color: var(--gold); font-size: 11px; font-family: sans-serif; }
-
-  .books-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 0.4rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .book-item {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 1px;
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-    font-size: 0.85rem;
-  }
-
-  .book-item:hover { background: rgba(184,134,11,0.06); border-color: var(--border); }
-  .book-item.selected { background: rgba(184,134,11,0.1); border-color: rgba(184,134,11,0.3); }
-
-  .book-check {
-    width: 13px; height: 13px;
-    border: 1px solid var(--gold-light);
-    display: inline-flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-
-  .book-item.selected .book-check { background: var(--gold); border-color: var(--gold); }
-  .book-item.selected .book-check::after { content: '✓'; color: white; font-size: 8px; font-family: sans-serif; }
-
-  .book-name { flex: 1; font-size: 0.82rem; }
-  .book-verses { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
-
-  .settings-panel {
-    position: sticky;
-    top: 1.5rem;
-    display: flex;
-    flex-direction: column;
     gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent-strong);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
   }
 
-  .field-group { margin-bottom: 1rem; }
+  .selected-count {
+    color: var(--muted);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.84rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .selected-count span { color: var(--accent); font-weight: 800; }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.05fr) minmax(280px, 1.45fr) minmax(190px, 1.05fr) minmax(160px, 0.85fr);
+    gap: 0.85rem;
+    align-items: end;
+  }
+
+  .field-group {
+    min-width: 0;
+  }
+
+  .availability-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+    padding: 0.85rem;
+    border: 1px solid rgba(124, 109, 242, 0.13);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.52);
+  }
+
   .field-group:last-child { margin-bottom: 0; }
 
   label {
     display: block;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.15em;
+    margin-bottom: 0.42rem;
     color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-  }
-
-  input[type="number"], select {
-    width: 100%;
-    background: rgba(255,255,255,0.7);
-    border: 1px solid var(--border);
-    border-radius: 1px;
-    padding: 0.5rem 0.75rem;
     font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--ink);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  input[type="number"],
+  select,
+  .search-bar input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0.72rem 0.9rem;
+    border: 1px solid rgba(124, 109, 242, 0.18);
+    border-radius: 15px;
     outline: none;
-    transition: border-color 0.15s;
+    background: rgba(255, 255, 255, 0.84);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.94rem;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
   }
 
-  input[type="number"]:focus, select:focus { border-color: var(--gold); }
-
-  .speed-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+  input[type="number"]:focus,
+  select:focus,
+  .search-bar input:focus {
+    border-color: rgba(124, 109, 242, 0.58);
+    box-shadow: 0 0 0 4px rgba(124, 109, 242, 0.12);
+    background: #fff;
   }
+
+  .reading-speed-note {
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .divider { display: none; }
+
+  .speed-group { display: contents; }
 
   .btn {
     width: 100%;
-    padding: 0.75rem;
-    background: var(--ink);
-    color: var(--parchment);
-    border: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    min-height: 48px;
+    padding: 0.82rem 1rem;
+    border: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), #9b8cff);
+    color: #fff;
+    box-shadow: 0 16px 34px rgba(124, 109, 242, 0.27);
     cursor: pointer;
-    transition: background 0.15s;
-    border-radius: 1px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
   }
 
-  .btn:hover { background: var(--gold); }
-
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 42px rgba(124, 109, 242, 0.34);
+    filter: saturate(1.05);
   }
 
-  .btn-outline:hover { background: rgba(184,134,11,0.08); color: var(--gold); }
+  .btn:active { transform: translateY(0); }
 
   .result-box {
-    background: var(--ink);
-    color: var(--parchment);
-    padding: 1.25rem;
-    border-radius: 1px;
     display: none;
+    grid-column: 1 / -1;
+    padding: 1rem;
+    border: 1px solid rgba(124, 109, 242, 0.16);
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(135deg, rgba(238, 236, 255, 0.95), rgba(232, 251, 249, 0.78)),
+      rgba(255,255,255,0.76);
   }
 
   .result-box.visible { display: block; }
 
   .result-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.75rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
   }
 
-  .result-stat { text-align: center; padding: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
-  .result-stat .num { font-size: 1.5rem; font-weight: 600; color: var(--gold-light); display: block; }
-  .result-stat .lbl { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; color: rgba(245,237,224,0.5); text-transform: uppercase; }
-
-  .plan-section { margin-top: 1.5rem; }
-
-  .plan-section-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    color: var(--gold);
-    text-transform: uppercase;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 1rem;
+  .result-stat {
+    padding: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.66);
+    text-align: center;
   }
 
-  .plan-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
+  .result-stat .num {
+    display: block;
+    color: var(--accent);
+    font-size: 1.55rem;
+    font-weight: 850;
+    letter-spacing: -0.04em;
+    line-height: 1;
   }
 
-  .plan-table th {
+  .result-stat .lbl {
+    display: block;
+    margin-top: 0.34rem;
+    color: var(--muted);
     font-family: 'DM Mono', monospace;
     font-size: 0.58rem;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: var(--muted);
-    text-align: left;
-    padding: 0.4rem 0.5rem;
-    border-bottom: 1px solid var(--border);
   }
 
-  .plan-table td {
-    padding: 0.5rem 0.5rem;
-    border-bottom: 1px solid rgba(184,134,11,0.1);
-    vertical-align: top;
+  #r-summary {
+    color: var(--muted) !important;
+    opacity: 1 !important;
+    font-size: 0.9rem !important;
+    font-style: normal !important;
+    text-align: center;
   }
 
-  .plan-table tr:hover td { background: rgba(184,134,11,0.04); }
-
-  .day-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--gold);
-    white-space: nowrap;
+  .search-row {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.75fr) 1fr;
+    gap: 0.85rem;
+    align-items: start;
+    margin-bottom: 1.15rem;
   }
 
-  .verse-count { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); text-align: right; }
-
-  .search-bar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .search-bar input {
-    flex: 1;
-    padding: 0.4rem 0.6rem;
-    border: 1px solid var(--border);
-    background: rgba(255,255,255,0.6);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    border-radius: 1px;
-    outline: none;
-    color: var(--ink);
-  }
-
-  .search-bar input:focus { border-color: var(--gold); }
+  .search-bar { display: block; margin: 0; }
 
   .quick-btns {
     display: flex;
-    gap: 0.4rem;
     flex-wrap: wrap;
-    margin-bottom: 1rem;
+    gap: 0.48rem;
+    align-content: start;
   }
 
   .quick-btn {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    padding: 0.3rem 0.6rem;
-    border: 1px solid var(--border);
-    background: transparent;
+    min-height: 38px;
+    padding: 0.5rem 0.72rem;
+    border: 1px solid rgba(124, 109, 242, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.68);
     color: var(--muted);
     cursor: pointer;
-    border-radius: 1px;
-    transition: all 0.15s;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+  }
+
+  .quick-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(124, 109, 242, 0.45);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+  }
+
+  #books-container {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .testament-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 0.25rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(124, 109, 242, 0.16);
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(135deg, rgba(238, 236, 255, 0.76), rgba(237, 248, 255, 0.54)),
+      rgba(255, 255, 255, 0.68);
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.82rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .testament-header:hover {
+    transform: translateY(-1px);
+    border-color: rgba(124, 109, 242, 0.36);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .testament-header:first-of-type { margin-top: 0; }
+
+  .testament-check,
+  .book-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(124, 109, 242, 0.34);
+    background: rgba(255,255,255,0.68);
+  }
+
+  .testament-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+  }
+
+  .testament-check.checked,
+  .book-item.selected .book-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .testament-check.checked::after,
+  .book-item.selected .book-check::after {
+    content: '✓';
+    color: #fff;
+    font-family: Inter, sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .testament-check.partial {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, var(--accent-soft), #fff);
+  }
+
+  .testament-check.partial::after {
+    content: '–';
+    color: var(--accent);
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 0.62rem;
+  }
+
+  .book-item {
+    display: flex;
+    align-items: center;
+    gap: 0.58rem;
+    min-height: 48px;
+    padding: 0.62rem 0.72rem;
+    border: 1px solid rgba(124, 109, 242, 0.12);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.58);
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .book-item:hover {
+    transform: translateY(-1px);
+    border-color: rgba(124, 109, 242, 0.32);
+    background: rgba(255,255,255,0.86);
+    box-shadow: 0 10px 22px rgba(30, 41, 59, 0.06);
+  }
+
+  .book-item.selected {
+    border-color: rgba(124, 109, 242, 0.42);
+    background: linear-gradient(135deg, rgba(238, 236, 255, 0.95), rgba(237, 248, 255, 0.76));
+  }
+
+  .book-check {
+    width: 17px;
+    height: 17px;
+    border-radius: 6px;
+  }
+
+  .book-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 650;
+  }
+
+  .book-verses {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+  }
+
+  .plan-section { margin-top: 0; }
+
+  .plan-shell {
+    padding: 0 0 4rem;
+  }
+
+  .plan-shell .panel {
+    padding: clamp(1rem, 2vw, 1.35rem);
+  }
+
+  .plan-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .plan-section-title {
+    margin: 0;
+    color: var(--accent-strong);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
   }
 
-  .quick-btn:hover { background: rgba(184,134,11,0.08); color: var(--gold); border-color: var(--gold-light); }
-
-  .selected-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
+  .export-actions {
+    display: none;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
   }
 
-  .selected-count span { color: var(--gold); font-weight: 500; }
+  .export-actions.visible { display: grid; }
 
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 1rem 0;
+  .export-btn {
+    min-height: 40px;
+    padding: 0.62rem 0.75rem;
+    border: 1px solid rgba(124, 109, 242, 0.18);
+    background: rgba(255, 255, 255, 0.64);
+    color: var(--accent-strong);
+    box-shadow: none;
+    font-size: 0.68rem;
+  }
+
+  .export-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .download-status {
+    display: none;
+    margin: -0.25rem 0 0.9rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .download-status.visible { display: block; }
+
+  .plan-wrapper {
+    max-height: 560px;
+    overflow-y: auto;
+    border: 1px solid rgba(124, 109, 242, 0.12);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.54);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124,109,242,0.32) transparent;
+  }
+
+  .plan-wrapper::-webkit-scrollbar { width: 8px; }
+  .plan-wrapper::-webkit-scrollbar-thumb { background: rgba(124,109,242,0.28); border-radius: 999px; }
+
+  .plan-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.92rem;
+  }
+
+  .plan-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 0.82rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(248, 247, 255, 0.96);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-align: left;
+    text-transform: uppercase;
+    backdrop-filter: blur(12px);
+  }
+
+  .plan-table td {
+    padding: 0.82rem 1rem;
+    border-bottom: 1px solid rgba(124, 109, 242, 0.09);
+    vertical-align: top;
+  }
+
+  .plan-table tr:hover td { background: rgba(238, 236, 255, 0.46); }
+
+  .day-num {
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .verse-count {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.76rem;
+    text-align: right;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.16rem 0.46rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.66rem;
+    font-weight: 700;
+    margin-right: 0.22rem;
+  }
+
+  @media (max-width: 1040px) {
+    .controls-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .result-box { grid-column: 1 / -1; }
+    .search-row { grid-template-columns: 1fr; }
+    .export-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 700px) {
+    header,
+    .main,
+    .plan-shell { width: min(100% - 1rem, 620px); }
+
+    header { padding-top: 1.4rem; }
+
+    h1 { font-size: clamp(2.7rem, 15vw, 4rem); }
+
+    .header-stats,
+    .controls-grid,
+    .availability-card,
+    .result-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .panel-title,
+    .plan-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .selected-count { font-size: 0.8rem; }
+    .books-grid { grid-template-columns: 1fr; }
+    .export-actions { width: 100%; grid-template-columns: 1fr; }
+    .plan-table { font-size: 0.86rem; }
+    .plan-table th:nth-child(3),
+    .plan-table td:nth-child(3) { display: none; }
+    .plan-table td:first-child { width: 82px; }
+  }
+
+
+  /* Compact pastel layout: more content visible without losing the soft look */
+  :root {
+    --shadow: 0 14px 38px rgba(30, 41, 59, 0.10);
+    --shadow-soft: 0 8px 22px rgba(30, 41, 59, 0.07);
+    --radius-xl: 20px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 10px;
+  }
+
+  body { line-height: 1.42; }
+
+  body::after {
+    background-size: 36px 36px;
+    opacity: 0.32;
+  }
+
+  header,
+  .main,
+  .plan-shell {
+    width: min(1320px, calc(100% - 1.2rem));
+  }
+
+  header {
+    padding: 1rem 0 0.45rem;
+  }
+
+  .subtitle-line {
+    gap: 0.38rem;
+    padding: 0.34rem 0.6rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.52rem;
+    letter-spacing: 0.11em;
+    box-shadow: 0 6px 18px rgba(30, 41, 59, 0.06);
+  }
+
+  h1 {
+    max-width: 560px;
+    font-size: clamp(2rem, 4.6vw, 3.25rem);
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+  }
+
+  .header-stats {
+    width: min(520px, 100%);
+    gap: 0.5rem;
+    margin: 0.75rem auto 0;
+  }
+
+  .stat {
+    padding: 0.48rem 0.62rem;
+    border-radius: 14px;
+  }
+
+  .stat-num {
+    font-size: clamp(1.05rem, 2vw, 1.38rem);
+  }
+
+  .stat-label {
+    margin-top: 0.12rem;
+    font-size: 0.48rem;
+    letter-spacing: 0.1em;
+  }
+
+  .main,
+  .plan-shell {
+    margin-top: 0.55rem;
+  }
+
+  .main {
+    gap: 0.62rem;
+    padding-bottom: 1.4rem;
+  }
+
+  .controls-panel,
+  .books-panel,
+  .plan-shell .panel {
+    padding: 0.78rem 0.86rem;
+  }
+
+  .panel-title,
+  .plan-heading {
+    gap: 0.65rem;
+    padding-bottom: 0.52rem;
+    margin-bottom: 0.62rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.13em;
+  }
+
+  .selected-count {
+    font-size: 0.72rem;
+  }
+
+  .controls-grid {
+    grid-template-columns: minmax(140px, 0.85fr) minmax(230px, 1.25fr) minmax(170px, 0.92fr) minmax(136px, 0.72fr);
+    gap: 0.52rem;
+  }
+
+  .availability-card {
+    gap: 0.45rem;
+    padding: 0.52rem;
+    border-radius: 14px;
+  }
+
+  label {
+    margin-bottom: 0.24rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  input[type="number"],
+  select,
+  .search-bar input {
+    min-height: 34px;
+    padding: 0.42rem 0.58rem;
+    border-radius: 11px;
+    font-size: 0.78rem;
+  }
+
+  input[type="number"]:focus,
+  select:focus,
+  .search-bar input:focus {
+    box-shadow: 0 0 0 3px rgba(124, 109, 242, 0.10);
+  }
+
+  .reading-speed-note {
+    margin-top: 0.26rem;
+    font-size: 0.63rem;
+    line-height: 1.25;
+  }
+
+  .btn {
+    min-height: 35px;
+    padding: 0.48rem 0.68rem;
+    border-radius: 12px;
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    box-shadow: 0 10px 24px rgba(124, 109, 242, 0.22);
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(124, 109, 242, 0.27);
+  }
+
+  .result-box {
+    padding: 0.55rem;
+    border-radius: 14px;
+  }
+
+  .result-grid {
+    gap: 0.42rem;
+    margin-bottom: 0.42rem;
+  }
+
+  .result-stat {
+    padding: 0.42rem;
+    border-radius: 11px;
+  }
+
+  .result-stat .num {
+    font-size: 1.08rem;
+  }
+
+  .result-stat .lbl {
+    margin-top: 0.16rem;
+    font-size: 0.46rem;
+  }
+
+  #r-summary {
+    font-size: 0.72rem !important;
+  }
+
+  .search-row {
+    grid-template-columns: minmax(220px, 0.55fr) 1fr;
+    gap: 0.52rem;
+    margin-bottom: 0.62rem;
+  }
+
+  .quick-btns {
+    gap: 0.32rem;
+  }
+
+  .quick-btn {
+    min-height: 29px;
+    padding: 0.32rem 0.5rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.035em;
+  }
+
+  #books-container {
+    gap: 0.42rem;
+  }
+
+  .testament-header {
+    gap: 0.42rem;
+    margin-top: 0.08rem;
+    padding: 0.46rem 0.6rem;
+    border-radius: 13px;
+    font-size: 0.64rem;
+    letter-spacing: 0.045em;
+  }
+
+  .testament-header span:first-of-type {
+    font-size: 0.62rem !important;
+  }
+
+  .testament-header span:last-child {
+    font-size: 0.52rem !important;
+  }
+
+  .testament-check {
+    width: 14px;
+    height: 14px;
+    border-radius: 5px;
+  }
+
+  .testament-check.checked::after,
+  .book-item.selected .book-check::after {
+    font-size: 9px;
+  }
+
+  .testament-check.partial::after {
+    font-size: 11px;
+  }
+
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 0.32rem;
+  }
+
+  .book-item {
+    min-height: 33px;
+    gap: 0.36rem;
+    padding: 0.32rem 0.44rem;
+    border-radius: 11px;
+  }
+
+  .book-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(30, 41, 59, 0.05);
+  }
+
+  .book-check {
+    width: 13px;
+    height: 13px;
+    border-radius: 4px;
+  }
+
+  .book-name {
+    font-size: 0.73rem;
+    font-weight: 650;
+  }
+
+  .book-verses {
+    font-size: 0.52rem;
+  }
+
+  .plan-shell {
+    padding-bottom: 2rem;
+  }
+
+  .plan-section-title {
+    font-size: 0.56rem;
+  }
+
+  .export-actions {
+    gap: 0.32rem;
+  }
+
+  .export-btn {
+    min-height: 30px;
+    padding: 0.42rem 0.5rem;
+    font-size: 0.54rem;
+  }
+
+  .download-status {
+    margin: -0.15rem 0 0.55rem;
+    font-size: 0.52rem;
   }
 
   .plan-wrapper {
     max-height: 500px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gold-pale) transparent;
+    border-radius: 14px;
   }
 
-  .plan-wrapper::-webkit-scrollbar { width: 4px; }
-  .plan-wrapper::-webkit-scrollbar-thumb { background: var(--gold-pale); border-radius: 2px; }
+  .plan-wrapper::-webkit-scrollbar { width: 6px; }
 
-  .reading-speed-note {
+  .plan-table {
     font-size: 0.78rem;
-    color: var(--muted);
-    font-style: italic;
-    margin-top: 0.5rem;
+  }
+
+  .plan-table th {
+    padding: 0.48rem 0.62rem;
+    font-size: 0.5rem;
+  }
+
+  .plan-table td {
+    padding: 0.48rem 0.62rem;
+  }
+
+  .day-num,
+  .verse-count {
+    font-size: 0.62rem;
   }
 
   .tag {
-    display: inline-block;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: 1px;
-    background: rgba(184,134,11,0.12);
-    color: var(--gold);
-    margin-right: 0.2rem;
+    padding: 0.1rem 0.32rem;
+    font-size: 0.54rem;
+    margin-right: 0.14rem;
   }
+
+  @media (max-width: 1040px) {
+    .controls-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .availability-card {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 840px) {
+    header,
+    .main,
+    .plan-shell {
+      width: min(100% - 0.8rem, 760px);
+    }
+
+    .controls-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .search-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    header,
+    .main,
+    .plan-shell { width: min(100% - 0.7rem, 620px); }
+
+    header { padding-top: 0.65rem; }
+
+    h1 { font-size: clamp(1.9rem, 11vw, 2.8rem); }
+
+    .subtitle-line { font-size: 0.48rem; }
+
+    .header-stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.35rem;
+      margin-top: 0.55rem;
+    }
+
+    .stat { padding: 0.42rem 0.3rem; }
+    .stat-num { font-size: 1rem; }
+    .stat-label { font-size: 0.42rem; }
+
+    .controls-panel,
+    .books-panel,
+    .plan-shell .panel {
+      padding: 0.62rem;
+    }
+
+    .controls-grid,
+    .availability-card,
+    .result-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .panel-title,
+    .plan-heading {
+      gap: 0.34rem;
+      padding-bottom: 0.42rem;
+      margin-bottom: 0.48rem;
+    }
+
+    .books-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.28rem;
+    }
+
+    .book-item { min-height: 31px; }
+    .book-name { font-size: 0.69rem; }
+    .book-verses { display: none; }
+
+    .export-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .plan-table td:first-child { width: 66px; }
+  }
+
+  @media (max-width: 420px) {
+    .books-grid { grid-template-columns: 1fr; }
+    .quick-btn { flex: 1 1 auto; }
+    .export-actions { grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
 <body>
@@ -436,62 +1142,30 @@
   </div>
 </header>
 
-<div class="main">
-  <!-- LEFT: Book Selection -->
-  <div>
-    <div class="panel">
-      <div class="panel-title">
-        <span>Select Books</span>
-        <span class="selected-count"><span id="sel-count">66</span> selected · <span id="sel-verses">31,102</span> verses</span>
-      </div>
-
-      <div class="search-bar">
-        <input type="text" id="book-search" placeholder="Search book..." oninput="filterBooks()">
-      </div>
-
-      <div class="quick-btns">
-        <button class="quick-btn" onclick="selectAll()">All</button>
-        <button class="quick-btn" onclick="selectNone()">None</button>
-        <button class="quick-btn" onclick="selectTestament('OT')">Old Testament</button>
-        <button class="quick-btn" onclick="selectTestament('NT')">New Testament</button>
-        <button class="quick-btn" onclick="selectGroup('Pentateuch')">Pentateuch</button>
-        <button class="quick-btn" onclick="selectGroup('Gospels')">Gospels</button>
-        <button class="quick-btn" onclick="selectGroup('Epistles')">Epistles</button>
-        <button class="quick-btn" onclick="selectGroup('Poetic')">Poetic</button>
-      </div>
-
-      <div id="books-container"></div>
+<div class="main" aria-label="Bible reading plan builder">
+  <section class="panel controls-panel" aria-label="Plan settings">
+    <div class="panel-title">
+      <span>Customize Plan</span>
+      <span class="selected-count"><span id="sel-count">66</span> selected · <span id="sel-verses">31,102</span> verses</span>
     </div>
-  </div>
 
-  <!-- RIGHT: Settings & Results -->
-  <div class="settings-panel">
-    <div class="panel">
-      <div class="panel-title">Settings</div>
-
+    <div class="controls-grid">
       <div class="field-group">
         <label>Verses per day</label>
         <input type="number" id="verses-per-day" value="25" min="1" max="500" oninput="recalculate()">
         <div class="reading-speed-note">~25 verses ≈ 10–15 min of reading</div>
       </div>
 
-      <div class="divider"></div>
-
-      <div class="field-group">
-        <label>Or: calculate by availability</label>
-        <div class="speed-group">
-          <div>
-            <label>Min/day available</label>
-            <input type="number" id="minutes-per-day" value="" min="1" max="1440" placeholder="e.g. 20" oninput="calcFromTime()">
-          </div>
-          <div>
-            <label>Speed (v/min)</label>
-            <input type="number" id="reading-speed" value="2.5" min="0.5" max="10" step="0.5" oninput="calcFromTime()">
-          </div>
+      <div class="field-group availability-card">
+        <div>
+          <label>Min/day available</label>
+          <input type="number" id="minutes-per-day" value="" min="1" max="1440" placeholder="e.g. 20" oninput="calcFromTime()">
+        </div>
+        <div>
+          <label>Speed (v/min)</label>
+          <input type="number" id="reading-speed" value="2.5" min="0.5" max="10" step="0.5" oninput="calcFromTime()">
         </div>
       </div>
-
-      <div class="divider"></div>
 
       <div class="field-group">
         <label>Reading days per week</label>
@@ -504,39 +1178,76 @@
         </select>
       </div>
 
-      <button class="btn" onclick="generatePlan()">Generate Plan</button>
+      <div class="field-group">
+        <label>&nbsp;</label>
+        <button class="btn" onclick="generatePlan()">Generate Plan</button>
+      </div>
+
+      <div class="result-box" id="result-box">
+        <div class="result-grid">
+          <div class="result-stat">
+            <span class="num" id="r-days">—</span>
+            <span class="lbl">Reading days</span>
+          </div>
+          <div class="result-stat">
+            <span class="num" id="r-weeks">—</span>
+            <span class="lbl">Weeks</span>
+          </div>
+          <div class="result-stat">
+            <span class="num" id="r-verses">—</span>
+            <span class="lbl">Verses/day</span>
+          </div>
+          <div class="result-stat">
+            <span class="num" id="r-time">—</span>
+            <span class="lbl">Est. min/day</span>
+          </div>
+        </div>
+        <div id="r-summary"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel books-panel" aria-label="Book selection">
+    <div class="panel-title">
+      <span>Select Books</span>
+      <span>Search, filter or select a group</span>
     </div>
 
-    <!-- Result Summary -->
-    <div class="result-box" id="result-box">
-      <div class="result-grid">
-        <div class="result-stat">
-          <span class="num" id="r-days">—</span>
-          <span class="lbl">Reading days</span>
-        </div>
-        <div class="result-stat">
-          <span class="num" id="r-weeks">—</span>
-          <span class="lbl">Weeks</span>
-        </div>
-        <div class="result-stat">
-          <span class="num" id="r-verses">—</span>
-          <span class="lbl">Verses/day</span>
-        </div>
-        <div class="result-stat">
-          <span class="num" id="r-time">—</span>
-          <span class="lbl">Est. min/day</span>
-        </div>
+    <div class="search-row">
+      <div class="search-bar">
+        <input type="text" id="book-search" placeholder="Search a book..." oninput="filterBooks()">
       </div>
-      <div id="r-summary" style="font-size:0.85rem; opacity:0.75; font-style:italic; text-align:center;"></div>
+
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="selectAll()">All</button>
+        <button class="quick-btn" onclick="selectNone()">None</button>
+        <button class="quick-btn" onclick="selectTestament('OT')">Old Testament</button>
+        <button class="quick-btn" onclick="selectTestament('NT')">New Testament</button>
+        <button class="quick-btn" onclick="selectGroup('Pentateuch')">Pentateuch</button>
+        <button class="quick-btn" onclick="selectGroup('Gospels')">Gospels</button>
+        <button class="quick-btn" onclick="selectGroup('Epistles')">Epistles</button>
+        <button class="quick-btn" onclick="selectGroup('Poetic')">Poetic</button>
+      </div>
     </div>
-  </div>
+
+    <div id="books-container"></div>
+  </section>
 </div>
 
 <!-- Daily Plan Table -->
-<div style="max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem;">
+<div class="plan-shell">
   <div id="plan-section" class="plan-section" style="display:none;">
     <div class="panel">
-      <div class="plan-section-title">Detailed Daily Plan</div>
+      <div class="plan-heading">
+        <div class="plan-section-title">Detailed Daily Plan</div>
+        <div class="export-actions" id="export-actions">
+          <button class="btn export-btn" onclick="downloadPlanPDF()">Download PDF A4</button>
+          <button class="btn export-btn" onclick="downloadPlanPNG()">Download PNG A4</button>
+          <button class="btn export-btn" onclick="downloadPlanText()">Download Text</button>
+          <button class="btn export-btn" onclick="downloadPlanExcel()">Download Excel</button>
+        </div>
+      </div>
+      <div id="download-status" class="download-status"></div>
       <div class="plan-wrapper">
         <table class="plan-table">
           <thead>
@@ -632,6 +1343,8 @@ const BOOKS = [
 ];
 
 let selected = new Array(BOOKS.length).fill(true);
+let currentPlanRows = [];
+let currentPlanMeta = null;
 
 function fmt(n) { return n.toLocaleString('en-US'); }
 
@@ -771,10 +1484,26 @@ function buildPlan(books, vpd, daysPerWeek) {
   });
 
   const totalDays = Math.ceil(allVerses.length / vpd);
+  const totalCalendarDays = Math.ceil(totalDays / daysPerWeek * 7);
+  const totalWeeks = Math.ceil(totalCalendarDays / 7);
   const fragment = document.createDocumentFragment();
   const maxRows = Math.min(totalDays, 500);
 
-  for (let day = 0; day < maxRows; day++) {
+  currentPlanRows = [];
+  currentPlanMeta = {
+    title: 'Bible Reading Plan',
+    version: 'CEV - Contemporary English Version',
+    bookCount: books.length,
+    books: books.map(b => b.name),
+    totalVerses: allVerses.length,
+    versesPerDay: vpd,
+    readingDaysPerWeek: daysPerWeek,
+    readingDays: totalDays,
+    weeks: totalWeeks,
+    generatedAt: new Date().toLocaleString('en-US')
+  };
+
+  for (let day = 0; day < totalDays; day++) {
     const start = day * vpd;
     const end = Math.min(start + vpd, allVerses.length);
     const dayVerses = allVerses.slice(start, end);
@@ -790,33 +1519,424 @@ function buildPlan(books, vpd, daysPerWeek) {
       }
     });
 
-    const readingStr = segments.map(s => {
-      if (s.from === 1 && s.to === s.total) return `<span class="tag">${s.abbr}</span> complete`;
-      if (s.from === s.to) return `<span class="tag">${s.abbr}</span> v.${s.from}`;
-      return `<span class="tag">${s.abbr}</span> v.${s.from}–${s.to}`;
-    }).join(' <span style="color:var(--muted);font-size:0.75rem">+</span> ');
+    const readingText = segments.map(segmentToText).join(' + ');
+    const readingStr = segments.map(segmentToHtml).join(' <span style="color:var(--muted);font-size:0.75rem">+</span> ');
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><div class="day-num">Day ${day+1}</div></td>
-      <td>${readingStr}</td>
-      <td class="verse-count">${end - start}</td>
-    `;
-    fragment.appendChild(tr);
+    currentPlanRows.push({
+      day: day + 1,
+      reading: readingText,
+      verses: end - start,
+      segments
+    });
+
+    if (day < maxRows) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><div class="day-num">Day ${day+1}</div></td>
+        <td>${readingStr}</td>
+        <td class="verse-count">${end - start}</td>
+      `;
+      fragment.appendChild(tr);
+    }
   }
 
   if (totalDays > 500) {
     const tr = document.createElement('tr');
     tr.innerHTML = `<td colspan="3" style="text-align:center;color:var(--muted);font-style:italic;font-size:0.8rem;padding:1rem">
-      + ${fmt(totalDays - 500)} additional days (omitted for performance)
+      + ${fmt(totalDays - 500)} additional days (omitted for performance, but included in downloads)
     </td>`;
     fragment.appendChild(tr);
   }
 
   tbody.appendChild(fragment);
   document.getElementById('plan-section').style.display = 'block';
+  document.getElementById('export-actions').classList.add('visible');
   document.getElementById('plan-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+function segmentToText(s) {
+  if (s.from === 1 && s.to === s.total) return `${s.abbr} complete`;
+  if (s.from === s.to) return `${s.abbr} v.${s.from}`;
+  return `${s.abbr} v.${s.from}-${s.to}`;
+}
+
+function segmentToHtml(s) {
+  if (s.from === 1 && s.to === s.total) return `<span class="tag">${s.abbr}</span> complete`;
+  if (s.from === s.to) return `<span class="tag">${s.abbr}</span> v.${s.from}`;
+  return `<span class="tag">${s.abbr}</span> v.${s.from}–${s.to}`;
+}
+
+function ensurePlanReady() {
+  if (!currentPlanRows.length || !currentPlanMeta) {
+    alert('Generate a plan before downloading.');
+    return false;
+  }
+  return true;
+}
+
+function downloadBlob(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function planFileBaseName() {
+  return 'bible-reading-plan';
+}
+
+function downloadPlanText() {
+  if (!ensurePlanReady()) return;
+
+  const lines = [
+    currentPlanMeta.title,
+    currentPlanMeta.version,
+    `Generated: ${currentPlanMeta.generatedAt}`,
+    `Books: ${currentPlanMeta.bookCount}`,
+    `Total verses: ${fmt(currentPlanMeta.totalVerses)}`,
+    `Verses per day: ${fmt(currentPlanMeta.versesPerDay)}`,
+    `Reading days per week: ${currentPlanMeta.readingDaysPerWeek}`,
+    `Reading days: ${fmt(currentPlanMeta.readingDays)}`,
+    `Weeks: ${fmt(currentPlanMeta.weeks)}`,
+    '',
+    'Day\tReading\tVerses',
+    ...currentPlanRows.map(r => `${r.day}\t${r.reading}\t${r.verses}`)
+  ];
+
+  downloadBlob(lines.join('\n'), `${planFileBaseName()}.txt`, 'text/plain;charset=utf-8');
+}
+
+function escapeXml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function downloadPlanExcel() {
+  if (!ensurePlanReady()) return;
+
+  const rows = [
+    ['Bible Reading Plan', '', ''],
+    ['Version', currentPlanMeta.version, ''],
+    ['Generated', currentPlanMeta.generatedAt, ''],
+    ['Books', currentPlanMeta.bookCount, ''],
+    ['Total verses', currentPlanMeta.totalVerses, ''],
+    ['Verses per day', currentPlanMeta.versesPerDay, ''],
+    ['Reading days per week', currentPlanMeta.readingDaysPerWeek, ''],
+    ['Reading days', currentPlanMeta.readingDays, ''],
+    ['Weeks', currentPlanMeta.weeks, ''],
+    ['', '', ''],
+    ['Day', 'Reading', 'Verses'],
+    ...currentPlanRows.map(r => [r.day, r.reading, r.verses])
+  ];
+
+  const xmlRows = rows.map((row, idx) => {
+    const style = idx === 0 || idx === 10 ? ' ss:StyleID="header"' : '';
+    return `<Row${style}>${row.map(cell => {
+      const isNumber = typeof cell === 'number';
+      const type = isNumber ? 'Number' : 'String';
+      return `<Cell><Data ss:Type="${type}">${escapeXml(cell)}</Data></Cell>`;
+    }).join('')}</Row>`;
+  }).join('');
+
+  const workbook = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="header"><Font ss:Bold="1"/><Interior ss:Color="#EEECFF" ss:Pattern="Solid"/></Style>
+ </Styles>
+ <Worksheet ss:Name="Reading Plan">
+  <Table>
+   <Column ss:Width="70"/>
+   <Column ss:Width="420"/>
+   <Column ss:Width="80"/>
+   ${xmlRows}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+  downloadBlob('\ufeff' + workbook, `${planFileBaseName()}.xls`, 'application/vnd.ms-excel;charset=utf-8');
+}
+
+function setDownloadStatus(message) {
+  const status = document.getElementById('download-status');
+  if (!status) return;
+  status.textContent = message || '';
+  status.classList.toggle('visible', Boolean(message));
+}
+
+function downloadCanvasAsPNG(canvas, filename) {
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function wrapCanvasText(ctx, text, maxWidth) {
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+
+  words.forEach(word => {
+    const testLine = line ? `${line} ${word}` : word;
+    if (ctx.measureText(testLine).width <= maxWidth) {
+      line = testLine;
+      return;
+    }
+
+    if (line) lines.push(line);
+
+    if (ctx.measureText(word).width <= maxWidth) {
+      line = word;
+      return;
+    }
+
+    let part = '';
+    for (const char of word) {
+      const testPart = part + char;
+      if (ctx.measureText(testPart).width <= maxWidth) {
+        part = testPart;
+      } else {
+        if (part) lines.push(part);
+        part = char;
+      }
+    }
+    line = part;
+  });
+
+  if (line) lines.push(line);
+  return lines.length ? lines : [''];
+}
+
+function drawA4Page(canvas, pageRows, pageNumber, totalPages) {
+  const cssWidth = 794;   // A4 portrait at 96 dpi
+  const cssHeight = 1123; // A4 portrait at 96 dpi
+  const scale = 2;        // exports at 1588 x 2246 px for sharper printing
+  canvas.width = cssWidth * scale;
+  canvas.height = cssHeight * scale;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  const marginX = 54;
+  const top = 58;
+  const pageBottom = cssHeight - 62;
+  const tableWidth = cssWidth - marginX * 2;
+  const dayX = marginX;
+  const readingX = marginX + 86;
+  const versesX = cssWidth - marginX;
+  const readingWidth = tableWidth - 170;
+
+  ctx.fillStyle = '#f7f8ff';
+  ctx.fillRect(0, 0, cssWidth, cssHeight);
+
+  // subtle parchment texture
+  ctx.fillStyle = 'rgba(124,109,242,0.032)';
+  for (let i = 0; i < 130; i++) {
+    const x = (i * 61) % cssWidth;
+    const y = (i * 97) % cssHeight;
+    ctx.beginPath();
+    ctx.arc(x, y, (i % 7) + 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#172033';
+  ctx.font = '34px Georgia, serif';
+  ctx.fillText(currentPlanMeta.title, marginX, top);
+
+  ctx.fillStyle = '#7c6df2';
+  ctx.font = '13px Georgia, serif';
+  ctx.fillText(currentPlanMeta.version, marginX, top + 28);
+
+  ctx.fillStyle = '#667085';
+  ctx.font = '11px monospace';
+  const metaLine = `${currentPlanMeta.bookCount} books · ${fmt(currentPlanMeta.totalVerses)} verses · ${fmt(currentPlanMeta.versesPerDay)} verses/day · ${fmt(currentPlanMeta.readingDays)} reading days · ${fmt(currentPlanMeta.weeks)} weeks`;
+  ctx.fillText(metaLine, marginX, top + 52);
+
+  ctx.strokeStyle = 'rgba(124,109,242,0.28)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(marginX, top + 72);
+  ctx.lineTo(cssWidth - marginX, top + 72);
+  ctx.stroke();
+
+  let y = top + 108;
+
+  ctx.fillStyle = '#7c6df2';
+  ctx.font = 'bold 11px monospace';
+  ctx.fillText('DAY', dayX, y);
+  ctx.fillText('READING', readingX, y);
+  ctx.textAlign = 'right';
+  ctx.fillText('VERSES', versesX, y);
+  ctx.textAlign = 'left';
+
+  ctx.strokeStyle = 'rgba(124,109,242,0.20)';
+  ctx.beginPath();
+  ctx.moveTo(marginX, y + 10);
+  ctx.lineTo(cssWidth - marginX, y + 10);
+  ctx.stroke();
+
+  y += 35;
+
+  pageRows.forEach((item, index) => {
+    const r = item.row;
+    const lines = item.lines;
+    const rowHeight = item.height;
+
+    if (index % 2 === 0) {
+      ctx.fillStyle = 'rgba(238,236,255,0.52)';
+      ctx.fillRect(marginX, y - 18, tableWidth, rowHeight);
+    }
+
+    ctx.fillStyle = '#7c6df2';
+    ctx.font = '12px monospace';
+    ctx.fillText(`Day ${r.day}`, dayX, y);
+
+    ctx.fillStyle = '#172033';
+    ctx.font = '13px Georgia, serif';
+    lines.forEach((line, lineIndex) => {
+      ctx.fillText(line, readingX, y + lineIndex * 17);
+    });
+
+    ctx.fillStyle = '#667085';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(String(r.verses), versesX, y);
+    ctx.textAlign = 'left';
+
+    ctx.strokeStyle = 'rgba(124,109,242,0.10)';
+    ctx.beginPath();
+    ctx.moveTo(marginX, y + rowHeight - 18);
+    ctx.lineTo(cssWidth - marginX, y + rowHeight - 18);
+    ctx.stroke();
+
+    y += rowHeight;
+  });
+
+  ctx.strokeStyle = 'rgba(124,109,242,0.28)';
+  ctx.beginPath();
+  ctx.moveTo(marginX, pageBottom + 18);
+  ctx.lineTo(cssWidth - marginX, pageBottom + 18);
+  ctx.stroke();
+
+  ctx.fillStyle = '#667085';
+  ctx.font = '10px monospace';
+  ctx.fillText(`Generated: ${currentPlanMeta.generatedAt}`, marginX, cssHeight - 28);
+  ctx.textAlign = 'right';
+  ctx.fillText(`Page ${pageNumber} of ${totalPages}`, cssWidth - marginX, cssHeight - 28);
+  ctx.textAlign = 'left';
+}
+
+function paginateRowsForA4() {
+  const measuringCanvas = document.createElement('canvas');
+  const ctx = measuringCanvas.getContext('2d');
+  ctx.font = '13px Georgia, serif';
+
+  const readingWidth = 794 - 54 * 2 - 170;
+  const top = 58;
+  const firstRowY = top + 108 + 35;
+  const pageBottom = 1123 - 62;
+  const availableHeight = pageBottom - firstRowY;
+
+  const pages = [];
+  let page = [];
+  let usedHeight = 0;
+
+  currentPlanRows.forEach(row => {
+    const lines = wrapCanvasText(ctx, row.reading, readingWidth);
+    const height = Math.max(28, lines.length * 17 + 13);
+
+    if (page.length && usedHeight + height > availableHeight) {
+      pages.push(page);
+      page = [];
+      usedHeight = 0;
+    }
+
+    page.push({ row, lines, height });
+    usedHeight += height;
+  });
+
+  if (page.length) pages.push(page);
+  return pages;
+}
+
+async function downloadPlanPNG() {
+  if (!ensurePlanReady()) return;
+
+  const pages = paginateRowsForA4();
+  const pageCount = pages.length;
+  setDownloadStatus(`Preparing ${pageCount} A4 PNG page${pageCount === 1 ? '' : 's'}...`);
+
+  const canvas = document.createElement('canvas');
+
+  for (let i = 0; i < pageCount; i++) {
+    drawA4Page(canvas, pages[i], i + 1, pageCount);
+    const pageNumber = String(i + 1).padStart(3, '0');
+    downloadCanvasAsPNG(canvas, `${planFileBaseName()}-a4-page-${pageNumber}.png`);
+    setDownloadStatus(`Downloading A4 PNG page ${i + 1} of ${pageCount}...`);
+    await wait(180);
+  }
+
+  setDownloadStatus(`Done: ${pageCount} A4 PNG page${pageCount === 1 ? '' : 's'} downloaded.`);
+}
+
+async function downloadPlanPDF() {
+  if (!ensurePlanReady()) return;
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('The PDF library could not be loaded. Please check your internet connection and try again.');
+    return;
+  }
+
+  const pages = paginateRowsForA4();
+  const pageCount = pages.length;
+  setDownloadStatus(`Preparing ${pageCount} A4 page${pageCount === 1 ? '' : 's'} for PDF...`);
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true
+  });
+
+  const canvas = document.createElement('canvas');
+  const pageWidthMm = 210;
+  const pageHeightMm = 297;
+
+  for (let i = 0; i < pageCount; i++) {
+    drawA4Page(canvas, pages[i], i + 1, pageCount);
+    const imgData = canvas.toDataURL('image/png');
+
+    if (i > 0) pdf.addPage('a4', 'portrait');
+    pdf.addImage(imgData, 'PNG', 0, 0, pageWidthMm, pageHeightMm, undefined, 'FAST');
+
+    setDownloadStatus(`Adding page ${i + 1} of ${pageCount} to PDF...`);
+    await wait(60);
+  }
+
+  pdf.save(`${planFileBaseName()}-a4.pdf`);
+  setDownloadStatus(`Done: PDF with ${pageCount} A4 page${pageCount === 1 ? '' : 's'} downloaded.`);
+}
+
 
 renderBooks();
 </script>
